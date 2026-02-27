@@ -1,0 +1,33 @@
+# cheerful-app: web build for deployment behind a reverse proxy
+
+FROM node:20 AS deps
+
+WORKDIR /repo
+
+COPY package.json yarn.lock ./
+COPY scripts ./scripts
+
+RUN mkdir -p packages/cheerful-app packages/cheerful-server packages/cheerful-cli packages/cheerful-agent packages/cheerful-wire
+
+COPY packages/cheerful-app/package.json packages/cheerful-app/
+COPY packages/cheerful-server/package.json packages/cheerful-server/
+COPY packages/cheerful-cli/package.json packages/cheerful-cli/
+COPY packages/cheerful-agent/package.json packages/cheerful-agent/
+COPY packages/cheerful-wire/package.json packages/cheerful-wire/
+
+RUN SKIP_CHEERFUL_WIRE_BUILD=1 yarn install --frozen-lockfile --ignore-engines
+
+FROM deps AS builder
+
+COPY packages/cheerful-wire ./packages/cheerful-wire
+COPY packages/cheerful-app ./packages/cheerful-app
+
+RUN cd packages/cheerful-app && npx expo export --platform web
+
+FROM nginx:alpine AS runner
+
+COPY --from=builder /repo/packages/cheerful-app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

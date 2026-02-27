@@ -1,0 +1,55 @@
+{
+  "name": "cheerful-coder",
+  "version": "0.1.0",
+  "description": "Mobile and Web client for Cursor Cloud Agents",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "cheerful": "./bin/cheerful.mjs"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" },
+      "import": { "types": "./dist/index.d.mts", "default": "./dist/index.mjs" }
+    }
+  },
+  "files": ["dist", "bin", "package.json"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "shx rm -rf dist && npx tsc --noEmit && pkgroll",
+    "test": "$npm_execpath run build && vitest run",
+    "cli": "tsx src/index.ts",
+    "dev": "tsx src/index.ts",
+    "start": "$npm_execpath run build && node ./bin/cheerful.mjs"
+  },
+  "dependencies": {
+    "@cheerful/wire": "^0.1.0",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "axios": "^1.13.2",
+    "chalk": "^5.6.2",
+    "expo-server-sdk": "^3.15.0",
+    "fastify": "^5.6.2",
+    "ink": "^6.5.1",
+    "inquirer": "^13.2.2",
+    "open": "^10.2.0",
+    "qrcode-terminal": "^0.12.0",
+    "react": "^19.2.0",
+    "socket.io-client": "^4.8.1",
+    "tweetnacl": "^1.0.3",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": ">=20",
+    "@types/qrcode-terminal": "^0.12.2",
+    "dotenv": "^16.6.1",
+    "pkgroll": "^2.14.2",
+    "shx": "^0.3.3",
+    "tsx": "^4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "yarn@1.22.22"
+}

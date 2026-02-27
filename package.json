@@ -1,0 +1,21 @@
+{
+  "name": "cheerful-monorepo",
+  "private": true,
+  "scripts": {
+    "cli": "yarn workspace cheerful-coder cli",
+    "release": "node ./scripts/release.cjs",
+    "web": "yarn workspace cheerful-app web",
+    "postinstall": "node ./scripts/postinstall.cjs"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/cheerful-app",
+      "packages/cheerful-agent",
+      "packages/cheerful-cli",
+      "packages/cheerful-server",
+      "packages/cheerful-wire"
+    ],
+    "nohoist": []
+  },
+  "packageManager": "yarn@1.22.22"
+}

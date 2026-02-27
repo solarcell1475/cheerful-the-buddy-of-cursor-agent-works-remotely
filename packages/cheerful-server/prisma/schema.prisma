@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  token         String    @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  machines      Machine[]
+  sessions      Session[]
+  devices       Device[]
+}
+
+model Machine {
+  id          String   @id @default(cuid())
+  machineId   String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([machineId, userId])
+}
+
+model Session {
+  id            String    @id @default(cuid())
+  tag           String    @unique
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  metadata      Json      @default("{}")
+  state         Json      @default("{}")
+  messages      Message[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  sessionId   String
+  session     Session  @relation(fields: [sessionId], references: [id])
+  payload     Json
+  encrypted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model Device {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  pushToken     String?
+  deviceName    String?
+  publicKey     String?
+  lastSeenAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

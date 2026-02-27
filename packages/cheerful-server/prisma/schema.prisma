@@ -16,6 +16,7 @@ model User {
   machines      Machine[]
   sessions      Session[]
   devices       Device[]
+  memories      Memory[]
 }
 
 model Machine {
@@ -38,6 +39,7 @@ model Session {
   metadata      Json      @default("{}")
   state         Json      @default("{}")
   messages      Message[]
+  memories      Memory[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -63,4 +65,20 @@ model Device {
   lastSeenAt    DateTime @default(now())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Memory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  sessionId   String?
+  session     Session? @relation(fields: [sessionId], references: [id])
+  type        String   @default("manual")
+  content     String
+  rawContent  String?
+  meta        Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([sessionId])
 }

@@ -1,6 +1,7 @@
 import type { Session } from './session';
 import { cursorRemote } from './cursorRemote';
 import { logger } from '../ui/logger';
+import { parseSpecialCommand } from '../parsers/specialCommands';
 
 interface RemoteLauncherOptions {
   repository: string;
@@ -51,8 +52,21 @@ export async function cursorRemoteLauncher(
         const next = await session.messageQueue.next();
         if (!next) return null;
 
-        if (next.message === '/switch') {
+        const special = parseSpecialCommand(next.message);
+
+        if (special.type === 'switch') {
           switchRequested = true;
+          abortController.abort();
+          return null;
+        }
+
+        if (special.type === 'clear') {
+          session.client.sendSessionDeath();
+          logger.debug('[cursorRemoteLauncher] /clear: session ended');
+          return null;
+        }
+
+        if (special.type === 'exit') {
           abortController.abort();
           return null;
         }

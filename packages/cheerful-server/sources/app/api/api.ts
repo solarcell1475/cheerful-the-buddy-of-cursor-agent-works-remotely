@@ -6,6 +6,7 @@ import { auth } from '../auth/auth';
 import { activityCache } from '../presence/sessionCache';
 import { log } from '../../utils/log';
 import { Expo } from 'expo-server-sdk';
+import { evaluateContent } from '../evaluation/evaluateContent';
 
 const expo = new Expo();
 
@@ -64,10 +65,11 @@ export async function startApi(): Promise<void> {
     if (!user) return reply.status(401).send({ error: 'Unauthorized' });
 
     const body = request.body as { machineId: string; metadata: Record<string, unknown> };
+    const meta = body.metadata as object;
     await db.machine.upsert({
       where: { machineId_userId: { machineId: body.machineId, userId: user.id } },
-      create: { machineId: body.machineId, userId: user.id, metadata: body.metadata },
-      update: { metadata: body.metadata },
+      create: { machineId: body.machineId, userId: user.id, metadata: meta },
+      update: { metadata: meta },
     });
 
     return { ok: true };
@@ -78,17 +80,19 @@ export async function startApi(): Promise<void> {
     if (!user) return reply.status(401).send({ error: 'Unauthorized' });
 
     const body = request.body as { tag: string; metadata: Record<string, unknown>; state: Record<string, unknown> };
+    const metadata = body.metadata as object;
+    const state = body.state as object;
     const session = await db.session.upsert({
       where: { tag: body.tag },
       create: {
         tag: body.tag,
         userId: user.id,
-        metadata: body.metadata,
-        state: body.state,
+        metadata,
+        state,
       },
       update: {
-        metadata: body.metadata,
-        state: body.state,
+        metadata,
+        state,
       },
     });
 
@@ -122,6 +126,62 @@ export async function startApi(): Promise<void> {
 
     if (!session) return reply.status(404).send({ error: 'Not found' });
     return session;
+  });
+
+  app.post('/api/memories', async (request, reply) => {
+    const user = await auth.authenticate(request);
+    if (!user) return reply.status(401).send({ error: 'Unauthorized' });
+
+    const body = request.body as { content: string; rawContent?: string; sessionId?: string; type?: string; meta?: Record<string, unknown> };
+    const content = typeof body.content === 'string' ? body.content.trim() : '';
+    const evalResult = evaluateContent(content);
+    if (!evalResult.ok) {
+      return reply.status(400).send({ error: 'Content not accepted' });
+    }
+
+    const memory = await db.memory.create({
+      data: {
+        userId: user.id,
+        sessionId: body.sessionId ?? null,
+        type: body.type ?? 'manual',
+        content,
+        rawContent: body.rawContent ?? null,
+        meta: (body.meta as object) ?? {},
+      },
+    });
+    return {
+      id: memory.id,
+      content: memory.content,
+      type: memory.type,
+      sessionId: memory.sessionId,
+      createdAt: memory.createdAt.toISOString(),
+    };
+  });
+
+  app.get('/api/memories', async (request, reply) => {
+    const user = await auth.authenticate(request);
+    if (!user) return reply.status(401).send({ error: 'Unauthorized' });
+
+    const query = request.query as { sessionId?: string; type?: string; limit?: string };
+    const limit = Math.min(parseInt(query.limit || '50', 10) || 50, 100);
+    const where: { userId: string; sessionId?: string; type?: string } = { userId: user.id };
+    if (query.sessionId) where.sessionId = query.sessionId;
+    if (query.type) where.type = query.type;
+
+    const memories = await db.memory.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+    return memories.map(m => ({
+      id: m.id,
+      content: m.content,
+      rawContent: m.rawContent,
+      type: m.type,
+      sessionId: m.sessionId,
+      meta: m.meta,
+      createdAt: m.createdAt.toISOString(),
+    }));
   });
 
   app.post('/api/push', async (request, reply) => {
@@ -205,6 +265,12 @@ export async function startApi(): Promise<void> {
     });
 
     socket.on('user-message', async ({ sessionId, message }) => {
+      const text = (message?.content as { text?: string })?.text ?? (typeof message === 'string' ? message : '');
+      const evalResult = evaluateContent(text);
+      if (!evalResult.ok) {
+        socket.emit('user-message-error', { error: 'Content not accepted', reason: 'content_not_accepted' });
+        return;
+      }
       await db.message.create({
         data: { sessionId, payload: message },
       });

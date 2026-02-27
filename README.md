@@ -1,48 +1,65 @@
-# Cheerful
+# Cheerful — The buddy of Cursor Agent works remotely
 
-## Mobile and Web Client for Cursor Cloud Agents
+Use your **tablet or phone** (e.g. Xiaomi Pad) to control and monitor **Cursor Agent** on your Mac, Ubuntu, or Windows. Chat, slash commands, plan, and debug in one place—without streaming your whole desktop.
 
-Use Cursor Cloud Agents from anywhere with end-to-end encryption.
+## Quick links
 
-### Step 1: Install CLI on your computer
+- **[For humans](docs/FOR_USERS.md)** — What Cheerful is, advantages vs RealVNC, and points to note.
+- **[Development overview](docs/CHEERFUL_DEVELOPMENT_OVERVIEW.md)** — Architecture, server, CLI, and Pad app in detail.
+
+## How it works
+
+1. **Cheerful Server** (runs on your machine or a cloud) — Handles login, sessions, and relays messages between the Pad and your computer.
+2. **Cheerful CLI** (runs on your Mac/Ubuntu/Windows) — Connects to the server and to **Cursor Agent** on the same machine. Receives messages from the Pad and passes them to the agent; sends back replies, plan, and debug.
+3. **Cheerful App** (on your Xiaomi Pad or phone) — Log in, open a session, send messages and slash commands, and see the agent’s plan and debug in real time.
+
+All code and commands run **locally** on your computer. The server only passes messages; it does not execute your code.
+
+## Quick start
+
+### 1. Server (once)
 
 ```bash
-npm install -g cheerful-coder
+# In packages/cheerful-server: set DATABASE_URL, CHEERFUL_USERNAME, CHEERFUL_PASSWORD
+yarn db:migrate
+yarn dev
 ```
 
-### Step 2: Start using `cheerful` to manage Cursor Cloud Agents
+### 2. Your computer (each time you want to use the Pad)
 
 ```bash
-# Start a new agent session
-cheerful
+# Install and log in (one time)
+cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 
-# Launch an agent on a specific repo
-cheerful --repo https://github.com/your-org/your-repo
-
-# List running agents
-cheerful agent list
+# Start a session (Pad can then connect to it)
+./bin/cheerful.mjs cursor
 ```
 
-## How does it work?
+### 3. Pad
 
-On your computer, run `cheerful` to launch and monitor Cursor Cloud Agents through our CLI wrapper. When you want to control your coding agents from your phone, it switches to remote mode via our sync server. To switch back to your computer, just press any key on your keyboard.
+- Install the app (Expo / Android build).
+- Set the server URL and log in with the same username/password as on the server.
+- Open a session and start chatting; the agent runs on your computer.
+
+## Project layout
+
+| Package | Role |
+|--------|------|
+| **cheerful-server** | Auth, sessions, messages, Socket.IO relay (PostgreSQL) |
+| **cheerful-cli** | Gateway: connects to server and Cursor Agent on your machine |
+| **cheerful-app** | Mobile/tablet client (Expo, React Native) |
+| **cheerful-agent** | Helper for Cursor Cloud API (optional) |
+| **cheerful-wire** | Shared types and schemas |
 
 ## Why Cheerful?
 
-- **Mobile access to Cursor Cloud Agents** - Check what your AI is building while away from your desk
-- **Push notifications** - Get alerted when agents finish or encounter errors
-- **Switch devices instantly** - Take control from phone or desktop with one keypress
-- **End-to-end encrypted** - Your code never leaves your devices unencrypted
-- **Open source** - Audit the code yourself. No telemetry, no tracking
+- **Lightweight** — Chat and events, not desktop video. Works on Wi‑Fi and mobile.
+- **Cursor-native** — Slash commands, plan, debug, and conversation in one place.
+- **Local execution** — Your code stays on your machine; the server only relays.
+- **Open** — Self-host the server and audit the code.
 
-## Project Components
-
-- **Cheerful App** - Web UI + mobile client (Expo)
-- **Cheerful CLI** - Command-line interface for Cursor Cloud Agents
-- **Cheerful Agent** - Remote agent control CLI (create, send, monitor sessions)
-- **Cheerful Server** - Backend server for encrypted sync
-- **Cheerful Wire** - Shared types and validation schemas
+See **[For humans](docs/FOR_USERS.md)** for a comparison with RealVNC and more details.
 
 ## License
 
-MIT License
+MIT

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   TextInput,
@@ -6,7 +6,9 @@ import {
   Text,
   StyleSheet,
   Platform,
+  ScrollView,
 } from 'react-native';
+import { filterSlashCommands } from '../constants/slashCommands';
 
 interface MessageInputProps {
   onSend: (text: string) => void;
@@ -18,6 +20,12 @@ interface MessageInputProps {
 export function MessageInput({ onSend, disabled, placeholder, isTablet }: MessageInputProps) {
   const [text, setText] = useState('');
 
+  const showSlashPanel = text.trim().startsWith('/');
+  const slashSuggestions = useMemo(
+    () => filterSlashCommands(text.trim().replace(/^\//, '').trim() ? text.trim() : '/'),
+    [text]
+  );
+
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -25,8 +33,38 @@ export function MessageInput({ onSend, disabled, placeholder, isTablet }: Messag
     setText('');
   };
 
+  const handleSelectSlash = (command: string) => {
+    const base = command.split(' ')[0];
+    setText(base + (command.includes('<') || command.includes('[') ? ' ' : ''));
+  };
+
   return (
     <View style={[styles.container, isTablet && styles.containerTablet]}>
+      {showSlashPanel && slashSuggestions.length > 0 && (
+        <View style={styles.slashPanel}>
+          <Text style={styles.slashPanelTitle}>Commands</Text>
+          <ScrollView
+            style={styles.slashScroll}
+            keyboardShouldPersistTaps="handled"
+            nestedScrollEnabled
+          >
+            {slashSuggestions.slice(0, 12).map((item, i) => (
+              <TouchableOpacity
+                key={item.command + i}
+                style={styles.slashRow}
+                onPress={() => handleSelectSlash(item.command)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.slashCommand} numberOfLines={1}>{item.command}</Text>
+                <Text style={styles.slashDesc} numberOfLines={1}>{item.description}</Text>
+              </TouchableOpacity>
+            ))}
+            {slashSuggestions.length > 12 && (
+              <Text style={styles.slashMore}>↓ more below</Text>
+            )}
+          </ScrollView>
+        </View>
+      )}
       <TextInput
         style={[styles.input, isTablet && styles.inputTablet]}
         value={text}
@@ -119,5 +157,47 @@ const styles = StyleSheet.create({
   },
   sendTextTablet: {
     fontSize: 18,
+  },
+  slashPanel: {
+    backgroundColor: '#1A1A2E',
+    borderRadius: 12,
+    marginBottom: 8,
+    maxHeight: 200,
+    borderWidth: 1,
+    borderColor: '#2A2A4A',
+  },
+  slashPanelTitle: {
+    color: '#888',
+    fontSize: 12,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+  },
+  slashScroll: {
+    maxHeight: 180,
+  },
+  slashRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#2A2A4A',
+  },
+  slashCommand: {
+    color: '#E0E0E0',
+    fontSize: 14,
+    flex: 1,
+  },
+  slashDesc: {
+    color: '#64748B',
+    fontSize: 12,
+    marginLeft: 8,
+    flex: 1,
+  },
+  slashMore: {
+    color: '#64748B',
+    fontSize: 11,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
   },
 });

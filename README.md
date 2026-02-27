@@ -1,5 +1,13 @@
 # Cheerful — The buddy of Cursor Agent works remotely
 
+<p align="center">
+  <img src="docs/images/cheerful-icon.png" width="120" alt="Cheerful icon" />
+</p>
+
+<p align="center">
+  <img src="docs/images/cheerful-banner.png" width="640" alt="Cheerful — the buddy of Cursor Agent works remotely" />
+</p>
+
 Use your **tablet or phone** (e.g. Xiaomi Pad) to control and monitor **Cursor Agent** on your Mac, Ubuntu, or Windows. Chat, slash commands, plan, and debug in one place—without streaming your whole desktop.
 
 ## Quick links
@@ -59,6 +67,12 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 - **Open** — Self-host the server and audit the code.
 
 See **[For humans](docs/FOR_USERS.md)** for a comparison with RealVNC and more details.
+
+## Version
+
+**v0.2.0** — See [CHANGELOG.md](CHANGELOG.md) for release history.
+
+> **GitHub social preview:** Use `docs/images/cheerful-banner.png` in your repo **Settings → General → Social preview** so link previews show the banner.
 
 ## License
 

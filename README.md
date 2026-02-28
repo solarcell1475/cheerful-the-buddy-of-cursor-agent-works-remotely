@@ -12,6 +12,7 @@ Use your **tablet or phone** (e.g. Xiaomi Pad) to control and monitor **Cursor A
 
 ## Quick links
 
+- **[Installation guide (copy & paste)](docs/INSTALL.md)** — Server, CLI, and **Android APK** build and install steps.
 - **[For humans](docs/FOR_USERS.md)** — What Cheerful is, advantages vs RealVNC, and points to note.
 - **[Development overview](docs/CHEERFUL_DEVELOPMENT_OVERVIEW.md)** — Architecture, server, CLI, and Pad app in detail.
 
@@ -22,6 +23,22 @@ Use your **tablet or phone** (e.g. Xiaomi Pad) to control and monitor **Cursor A
 3. **Cheerful App** (on your Xiaomi Pad or phone) — Log in, open a session, send messages and slash commands, and see the agent’s plan and debug in real time.
 
 All code and commands run **locally** on your computer. The server only passes messages; it does not execute your code.
+
+## Install
+
+**macOS / Linux**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/solarcell1475/cheerful-the-buddy-of-cursor-agent-works-remotely/main/scripts/install.sh | sh
+```
+
+**Windows (PowerShell)**
+
+```powershell
+irm https://raw.githubusercontent.com/solarcell1475/cheerful-the-buddy-of-cursor-agent-works-remotely/main/scripts/install.ps1 | iex
+```
+
+Then follow [Installation guide](docs/INSTALL.md) to set `.env` and run server + CLI. [Manual install](docs/INSTALL.md#manual-install-instructions) and [Docker](docs/INSTALL.md#docker) options are in the guide.
 
 ## Quick start
 

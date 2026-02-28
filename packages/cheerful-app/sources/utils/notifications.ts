@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { getToken } from '../auth/authStore';
+import { getToken, getServerUrl } from '../auth/authStore';
 import { registerDevice } from '../sync/sessionSync';
 
 Notifications.setNotificationHandler({
@@ -28,9 +28,9 @@ export async function setupPushNotifications(): Promise<string | null> {
 
   const pushToken = (await Notifications.getExpoPushTokenAsync()).data;
 
-  const authToken = await getToken();
-  if (authToken) {
-    await registerDevice(authToken, pushToken, Platform.OS);
+  const [authToken, baseUrl] = await Promise.all([getToken(), getServerUrl()]);
+  if (authToken && baseUrl) {
+    await registerDevice(authToken, pushToken, baseUrl, Platform.OS);
   }
 
   return pushToken;

@@ -11,17 +11,24 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useLayout } from '../hooks/useLayout';
-import { setAuth } from '../auth/authStore';
+import { setAuth, setServerUrl } from '../auth/authStore';
 import { loginWithPassword } from '../sync/sessionSync';
+import { config } from '../constants/config';
 
 export default function AuthScreen() {
   const router = useRouter();
+  const [serverUrl, setServerUrlInput] = useState(config.serverUrl);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const layout = useLayout();
 
   const handleLogin = async () => {
+    const url = serverUrl.trim();
+    if (!url) {
+      Alert.alert('Error', 'Please enter the server URL');
+      return;
+    }
     const u = username.trim();
     if (!u) {
       Alert.alert('Error', 'Please enter your username');
@@ -34,7 +41,8 @@ export default function AuthScreen() {
 
     setLoading(true);
     try {
-      const { token, userId } = await loginWithPassword(u, password);
+      await setServerUrl(url);
+      const { token, userId } = await loginWithPassword(url, u, password);
       await setAuth(token, userId);
       router.replace('/');
     } catch (err) {
@@ -64,6 +72,17 @@ export default function AuthScreen() {
         <Text style={[styles.subtitle, { fontSize: layout.fontSize.caption + 1 }]}>
           Use the server preset username and password
         </Text>
+
+        <TextInput
+          style={[styles.input, layout.isTablet && styles.inputTablet]}
+          value={serverUrl}
+          onChangeText={setServerUrlInput}
+          placeholder="Server URL (e.g. http://192.168.1.100:3005)"
+          placeholderTextColor="#666"
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="url"
+        />
 
         <TextInput
           style={[styles.input, layout.isTablet && styles.inputTablet]}

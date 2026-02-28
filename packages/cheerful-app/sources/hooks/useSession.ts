@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getToken } from '../auth/authStore';
+import { getToken, getServerUrl } from '../auth/authStore';
 import { fetchSessions, fetchSession } from '../sync/sessionSync';
 import {
   getSocket,
@@ -21,9 +21,9 @@ export function useSessions() {
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const token = await getToken();
+      const [token, baseUrl] = await Promise.all([getToken(), getServerUrl()]);
       if (!token) return;
-      const data = await fetchSessions(token);
+      const data = await fetchSessions(token, baseUrl);
       setSessions(data);
     } catch (err) {
       console.error('Failed to fetch sessions:', err);
@@ -61,11 +61,11 @@ export function useSessionDetail(sessionId: string) {
     let mounted = true;
 
     const init = async () => {
-      const token = await getToken();
+      const [token, baseUrl] = await Promise.all([getToken(), getServerUrl()]);
       if (!token || !mounted) return;
 
       try {
-        const data = await fetchSession(token, sessionId);
+        const data = await fetchSession(token, sessionId, baseUrl);
         if (!mounted) return;
 
         setSession({
@@ -92,7 +92,7 @@ export function useSessionDetail(sessionId: string) {
         });
         setMessages(chatMessages);
 
-        const socket = getSocket(token);
+        getSocket(token, baseUrl);
         joinSession(sessionId);
 
         onSessionMessage(({ message, timestamp }) => {

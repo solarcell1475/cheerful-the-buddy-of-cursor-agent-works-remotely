@@ -1,12 +1,17 @@
 import { io, type Socket } from 'socket.io-client';
-import { config } from '../constants/config';
 
 let socket: Socket | null = null;
+let lastServerUrl: string | null = null;
 
-export function getSocket(token: string): Socket {
-  if (socket?.connected) return socket;
-
-  socket = io(config.serverUrl, {
+export function getSocket(token: string, serverUrl: string): Socket {
+  const base = serverUrl.trim().replace(/\/$/, '');
+  if (socket?.connected && lastServerUrl === base) return socket;
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+  lastServerUrl = base;
+  socket = io(base, {
     auth: { token },
     transports: ['websocket'],
     reconnection: true,
@@ -20,6 +25,7 @@ export function getSocket(token: string): Socket {
 export function disconnectSocket(): void {
   socket?.disconnect();
   socket = null;
+  lastServerUrl = null;
 }
 
 export function joinSession(sessionId: string): void {

@@ -27,6 +27,7 @@ interface StructureChromeProps {
   onExport: () => void;
   onExportStl?: () => void;
   onImportImage?: () => void;
+  onReviewShots?: () => void;
   onRotate?: () => void;
   onMove?: (axis: 'x' | 'y' | 'z', delta: number) => void;
   onNudgePlace?: () => void;
@@ -73,6 +74,7 @@ export function StructureChrome({
   onExport,
   onExportStl,
   onImportImage,
+  onReviewShots,
   onRotate,
   onMove,
   onNudgePlace,
@@ -82,7 +84,7 @@ export function StructureChrome({
       <Text style={styles.hint}>
         {nativeControls
           ? 'Rotate the view, move the cursor, then place blocks in 3D.'
-          : 'Drag to orbit · 2D image / Microsoft MoGe → STL'}
+          : 'Drag to orbit · file parse + GUI shots to double-confirm'}
       </Text>
       <ScrollView
         horizontal
@@ -97,6 +99,7 @@ export function StructureChrome({
         <Chip label="Export JSON" onPress={onExport} />
         {onExportStl ? <Chip label="Export STL" onPress={onExportStl} /> : null}
         {onImportImage ? <Chip label="From 2D image" onPress={onImportImage} /> : null}
+        {onReviewShots ? <Chip label="Review shots" onPress={onReviewShots} /> : null}
         {nativeControls && onRotate ? <Chip label="Rotate" onPress={onRotate} /> : null}
         <Text style={styles.count}>{count} blocks</Text>
       </ScrollView>

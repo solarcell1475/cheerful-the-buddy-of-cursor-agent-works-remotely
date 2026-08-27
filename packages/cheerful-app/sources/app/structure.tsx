@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Platform,
@@ -9,6 +9,7 @@ import {
 import { Stack } from 'expo-router';
 import { StructureChrome } from '../components/structure/StructureChrome';
 import { StructureScene } from '../components/structure/StructureScene';
+import type { ReviewShot } from '../components/structure/StructureSceneProps';
 import { useLayout } from '../hooks/useLayout';
 import { useVoxelWorld } from '../hooks/useVoxelWorld';
 import { imageToVoxels } from '../structure/imageToVoxels';
@@ -25,6 +26,7 @@ export default function StructureScreen() {
   const [material, setMaterial] = useState<MaterialId>('blue');
   const [yaw, setYaw] = useState(0);
   const [cursor, setCursor] = useState({ x: 0, y: 0, z: 0 });
+  const captureRef = useRef<null | (() => Promise<ReviewShot[]>)>(null);
   const nativeControls = Platform.OS !== 'web';
 
   const handlePlace = useCallback(
@@ -70,6 +72,25 @@ export default function StructureScreen() {
       return;
     }
     Alert.alert('STL', `Generated ${tris.length} triangles. Open this lab on web to download the file.`);
+  };
+
+  const handleReviewShots = async () => {
+    const capture = captureRef.current;
+    if (!capture) {
+      Alert.alert(
+        'Review shots',
+        'On web, this orbits the 3D model and saves 8 views. On native, export STL and run scripts/cad_review.py.'
+      );
+      return;
+    }
+    try {
+      const shots = await capture();
+      const sheet = await contactSheetPng(shots);
+      downloadBytes('cheerful-review-shots.png', sheet, 'image/png');
+      Alert.alert('Review shots', `Captured ${shots.length} camera poses for double-check.`);
+    } catch (err) {
+      Alert.alert('Review shots', err instanceof Error ? err.message : 'Capture failed.');
+    }
   };
 
   const handleImportImage = () => {
@@ -162,10 +183,11 @@ export default function StructureScreen() {
           onPlace={handlePlace}
           onErase={world.erase}
           onCursorChange={setCursor}
+          captureRef={captureRef}
         />
         <View style={styles.legend} pointerEvents="none">
           <Text style={styles.legendTitle}>Cheerful 3D lab</Text>
-          <Text style={styles.legendText}>2D image → 3D voxels → STL</Text>
+          <Text style={styles.legendText}>Parse the file · orbit GUI shots to confirm</Text>
         </View>
       </View>
       <StructureChrome
@@ -185,12 +207,46 @@ export default function StructureScreen() {
         onExport={handleExport}
         onExportStl={handleExportStl}
         onImportImage={handleImportImage}
+        onReviewShots={handleReviewShots}
         onRotate={() => setYaw((y) => y + 90)}
         onMove={moveCursor}
         onNudgePlace={buildAtCursor}
       />
     </View>
   );
+}
+
+async function contactSheetPng(shots: ReviewShot[]): Promise<Uint8Array> {
+  const tile = 360;
+  const cols = 4;
+  const rows = Math.max(1, Math.ceil(shots.length / cols));
+  const canvas = document.createElement('canvas');
+  canvas.width = cols * tile;
+  canvas.height = rows * (tile + 28);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('No 2D context');
+  ctx.fillStyle = '#0A0A0A';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.font = '16px sans-serif';
+  ctx.fillStyle = '#E2E8F0';
+  for (let i = 0; i < shots.length; i++) {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('Could not decode view'));
+      image.src = shots[i].dataUrl;
+    });
+    const x = (i % cols) * tile;
+    const y = Math.floor(i / cols) * (tile + 28);
+    ctx.drawImage(img, x, y + 24, tile, tile);
+    ctx.fillText(shots[i].name, x + 8, y + 18);
+  }
+  const dataUrl = canvas.toDataURL('image/png');
+  const b64 = dataUrl.split(',')[1] ?? '';
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
 }
 
 async function rasterFromFile(file: File): Promise<RasterImage> {

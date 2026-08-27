@@ -8,7 +8,10 @@ import type { StructureSceneProps } from './StructureSceneProps';
 
 const BG = 0x0a0a0a;
 
-type HostEl = HTMLElement & { _cheerfulCleanup?: () => void };
+type HostEl = HTMLElement & {
+  _cheerfulCleanup?: () => void;
+  _cheerfulCaptureViews?: () => Promise<{ name: string; dataUrl: string }[]>;
+};
 
 interface Orbit {
   theta: number;
@@ -16,6 +19,17 @@ interface Orbit {
   radius: number;
   target: THREE.Vector3;
 }
+
+const REVIEW_POSES: Array<{ name: string; theta: number; phi: number }> = [
+  { name: 'iso-ne', theta: Math.PI / 4, phi: Math.PI / 3.1 },
+  { name: 'iso-nw', theta: (3 * Math.PI) / 4, phi: Math.PI / 3.1 },
+  { name: 'iso-sw', theta: (5 * Math.PI) / 4, phi: Math.PI / 3.1 },
+  { name: 'iso-se', theta: (7 * Math.PI) / 4, phi: Math.PI / 3.1 },
+  { name: 'front', theta: Math.PI / 2, phi: Math.PI / 2.08 },
+  { name: 'side', theta: 0, phi: Math.PI / 2.08 },
+  { name: 'top', theta: Math.PI / 4, phi: 0.2 },
+  { name: 'low', theta: Math.PI / 5, phi: 1.25 },
+];
 
 function applyOrbit(camera: THREE.PerspectiveCamera, orbit: Orbit) {
   const { theta, phi, radius, target } = orbit;
@@ -73,6 +87,7 @@ export function StructureScene({
   material,
   onPlace,
   onErase,
+  captureRef,
 }: StructureSceneProps) {
   const hostRef = useRef<View>(null);
   const voxelsRef = useRef(voxels);
@@ -404,6 +419,30 @@ export function StructureScene({
       host.innerHTML = '';
     };
     host._cheerfulCleanup = cleanup;
+    host._cheerfulCaptureViews = async () => {
+      const saved = {
+        theta: orbit.theta,
+        phi: orbit.phi,
+        radius: orbit.radius,
+      };
+      const shots: Array<{ name: string; dataUrl: string }> = [];
+      for (const pose of REVIEW_POSES) {
+        orbit.theta = pose.theta;
+        orbit.phi = pose.phi;
+        applyOrbit(camera, orbit);
+        renderer.render(scene, camera);
+        shots.push({ name: pose.name, dataUrl: canvas.toDataURL('image/png') });
+      }
+      orbit.theta = saved.theta;
+      orbit.phi = saved.phi;
+      orbit.radius = saved.radius;
+      applyOrbit(camera, orbit);
+      renderer.render(scene, camera);
+      return shots;
+    };
+    if (captureRef) {
+      captureRef.current = () => host._cheerfulCaptureViews?.() ?? Promise.resolve([]);
+    }
     return cleanup;
   }, []);
 

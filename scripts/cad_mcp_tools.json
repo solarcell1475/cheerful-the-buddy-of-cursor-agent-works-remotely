@@ -1,0 +1,30 @@
+{
+  "name": "cheerful-cad-review",
+  "description": "LLM tools for dual-path CAD review: parse DXF/STL, then orbit-capture PNG views to double-confirm.",
+  "tools": [
+    {
+      "name": "cad_summary",
+      "description": "Parse DXF (layers, entities, circles) or STL (bbox, triangle count). Use this for dimensions and design intent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string", "description": "Path to a .dxf or .stl file" }
+        },
+        "required": ["path"]
+      }
+    },
+    {
+      "name": "capture_views",
+      "description": "Control the 3D camera through several poses and save PNG screenshots so a vision model can double-check the mesh against the drawing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "outdir": { "type": "string" },
+          "views": { "type": "integer", "minimum": 4, "maximum": 16, "default": 8 }
+        },
+        "required": ["path", "outdir"]
+      }
+    }
+  ]
+}

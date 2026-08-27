@@ -83,6 +83,7 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 - **Local execution** — Your code stays on your machine; the server only relays.
 - **Open** — Self-host the server and audit the code.
 - **3D Structure Lab** — Build voxel structures on the Pad/web client (orbit, presets, 2D→3D, STL export) without streaming a desktop.
+- **Microsoft 2D→3D** — `scripts/install_microsoft_3d.sh` then `python3 scripts/microsoft_image_to_3d.py photo.jpg -o out.stl` (MoGe on CPU; TRELLIS.2 if you have a 24GB NVIDIA GPU).
 
 See **[For humans](docs/FOR_USERS.md)** for a comparison with RealVNC and more details.
 

@@ -82,7 +82,7 @@ export function StructureChrome({
       <Text style={styles.hint}>
         {nativeControls
           ? 'Rotate the view, move the cursor, then place blocks in 3D.'
-          : 'Drag to orbit · click to place · 2D image → voxels → STL'}
+          : 'Drag to orbit · 2D image / Microsoft MoGe → STL'}
       </Text>
       <ScrollView
         horizontal

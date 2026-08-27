@@ -11,7 +11,10 @@ import { StructureChrome } from '../components/structure/StructureChrome';
 import { StructureScene } from '../components/structure/StructureScene';
 import { useLayout } from '../hooks/useLayout';
 import { useVoxelWorld } from '../hooks/useVoxelWorld';
+import { imageToVoxels } from '../structure/imageToVoxels';
+import type { RasterImage } from '../structure/imageToVoxels';
 import { STRUCTURE_PRESETS } from '../structure/presets';
+import { downloadBytes, trianglesToBinaryStl, voxelsToTriangles } from '../structure/stl';
 import { inWorldBounds, WORLD_MAX, WORLD_MIN, WORLD_MAX_Y } from '../structure/types';
 import type { BuildTool, MaterialId } from '../structure/types';
 
@@ -52,6 +55,52 @@ export default function StructureScreen() {
       // fall through
     }
     Alert.alert('Structure JSON', json.slice(0, 1200) + (json.length > 1200 ? '…' : ''));
+  };
+
+  const handleExportStl = () => {
+    const tris = voxelsToTriangles(world.voxels, 1);
+    if (tris.length === 0) {
+      Alert.alert('Empty', 'Place some blocks or load a 2D drawing first.');
+      return;
+    }
+    const bytes = trianglesToBinaryStl(tris, 'cheerful-structure');
+    const ok = downloadBytes('cheerful-structure.stl', bytes, 'model/stl');
+    if (ok) {
+      Alert.alert('STL', `Saved cheerful-structure.stl (${tris.length} triangles).`);
+      return;
+    }
+    Alert.alert('STL', `Generated ${tris.length} triangles. Open this lab on web to download the file.`);
+  };
+
+  const handleImportImage = () => {
+    if (typeof document === 'undefined') {
+      Alert.alert(
+        '2D → 3D',
+        'Pick a PNG/JPG on the web client, or use the 2D → 3D presets (drawing, face, heightmap, CAD bracket).'
+      );
+      return;
+    }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/png,image/jpeg,image/webp,image/gif';
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        const raster = await rasterFromFile(file);
+        const mode = file.name.toLowerCase().includes('height') ? 'heightmap' : 'extrude';
+        const voxels = imageToVoxels(raster, { mode, thickness: 4, material });
+        if (voxels.length === 0) {
+          Alert.alert('2D → 3D', 'No dark pixels found. Try a high-contrast drawing.');
+          return;
+        }
+        world.load(voxels);
+        Alert.alert('2D → 3D', `Built ${voxels.length} voxels from ${file.name}. Export STL when ready.`);
+      } catch (err) {
+        Alert.alert('2D → 3D', err instanceof Error ? err.message : 'Could not read that image.');
+      }
+    };
+    input.click();
   };
 
   const moveCursor = (axis: 'x' | 'y' | 'z', delta: number) => {
@@ -116,7 +165,7 @@ export default function StructureScreen() {
         />
         <View style={styles.legend} pointerEvents="none">
           <Text style={styles.legendTitle}>Cheerful 3D lab</Text>
-          <Text style={styles.legendText}>Build voxel structures in perspective.</Text>
+          <Text style={styles.legendText}>2D image → 3D voxels → STL</Text>
         </View>
       </View>
       <StructureChrome
@@ -134,12 +183,28 @@ export default function StructureScreen() {
         onClear={world.clear}
         onPreset={handlePreset}
         onExport={handleExport}
+        onExportStl={handleExportStl}
+        onImportImage={handleImportImage}
         onRotate={() => setYaw((y) => y + 90)}
         onMove={moveCursor}
         onNudgePlace={buildAtCursor}
       />
     </View>
   );
+}
+
+async function rasterFromFile(file: File): Promise<RasterImage> {
+  const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement('canvas');
+  const max = 96;
+  const scale = Math.max(bitmap.width, bitmap.height) / max;
+  canvas.width = Math.max(1, Math.round(bitmap.width / scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height / scale));
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('No 2D context');
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return { width: imageData.width, height: imageData.height, data: imageData.data };
 }
 
 const styles = StyleSheet.create({

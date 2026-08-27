@@ -25,6 +25,8 @@ interface StructureChromeProps {
   onClear: () => void;
   onPreset: (id: string) => void;
   onExport: () => void;
+  onExportStl?: () => void;
+  onImportImage?: () => void;
   onRotate?: () => void;
   onMove?: (axis: 'x' | 'y' | 'z', delta: number) => void;
   onNudgePlace?: () => void;
@@ -69,6 +71,8 @@ export function StructureChrome({
   onClear,
   onPreset,
   onExport,
+  onExportStl,
+  onImportImage,
   onRotate,
   onMove,
   onNudgePlace,
@@ -78,7 +82,7 @@ export function StructureChrome({
       <Text style={styles.hint}>
         {nativeControls
           ? 'Rotate the view, move the cursor, then place blocks in 3D.'
-          : 'Drag to orbit · scroll to zoom · click a face or the grid to place'}
+          : 'Drag to orbit · click to place · 2D image → voxels → STL'}
       </Text>
       <ScrollView
         horizontal
@@ -91,6 +95,8 @@ export function StructureChrome({
         <Chip label="Redo" active={false} onPress={onRedo} />
         <Chip label="Clear" onPress={onClear} />
         <Chip label="Export JSON" onPress={onExport} />
+        {onExportStl ? <Chip label="Export STL" onPress={onExportStl} /> : null}
+        {onImportImage ? <Chip label="From 2D image" onPress={onImportImage} /> : null}
         {nativeControls && onRotate ? <Chip label="Rotate" onPress={onRotate} /> : null}
         <Text style={styles.count}>{count} blocks</Text>
       </ScrollView>

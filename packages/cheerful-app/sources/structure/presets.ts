@@ -1,3 +1,5 @@
+import { cadBracketVoxels } from './cadBracket';
+import { imageToVoxels, sampleBracketDrawing, sampleBuddyFaceDrawing, sampleHeightmapDrawing } from './imageToVoxels';
 import type { MaterialId, Voxel } from './types';
 
 function fill(
@@ -212,5 +214,29 @@ export const STRUCTURE_PRESETS: StructurePreset[] = [
     label: 'Spiral',
     blurb: 'Helix around a golden core',
     build: spiral,
+  },
+  {
+    id: 'cad-bracket',
+    label: 'CAD bracket',
+    blurb: 'L-bracket reconstructed from a 2D drawing',
+    build: cadBracketVoxels,
+  },
+  {
+    id: 'from-2d-bracket',
+    label: '2D → 3D drawing',
+    blurb: 'Extrude a 2D top-view bracket sketch',
+    build: () => imageToVoxels(sampleBracketDrawing(), { mode: 'extrude', thickness: 3, material: 'stone' }),
+  },
+  {
+    id: 'from-2d-face',
+    label: '2D → 3D face',
+    blurb: 'Extrude a 2D pixel-art face',
+    build: () => imageToVoxels(sampleBuddyFaceDrawing(), { mode: 'extrude', thickness: 4, material: 'blue' }),
+  },
+  {
+    id: 'from-2d-height',
+    label: '2D heightmap',
+    blurb: 'Raise a 2D grayscale bump into 3D',
+    build: () => imageToVoxels(sampleHeightmapDrawing(), { mode: 'heightmap', material: 'purple' }),
   },
 ];

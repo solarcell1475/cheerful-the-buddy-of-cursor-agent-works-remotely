@@ -82,13 +82,13 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 - **Cursor-native** — Slash commands, plan, debug, and conversation in one place.
 - **Local execution** — Your code stays on your machine; the server only relays.
 - **Open** — Self-host the server and audit the code.
-- **3D Structure Lab** — Build voxel structures on the Pad/web client (orbit, presets, export) without streaming a desktop.
+- **3D Structure Lab** — Build voxel structures on the Pad/web client (orbit, presets, 2D→3D, STL export) without streaming a desktop.
 
 See **[For humans](docs/FOR_USERS.md)** for a comparison with RealVNC and more details.
 
 ## Version
 
-**v0.2.0** — See [CHANGELOG.md](CHANGELOG.md) for release history.
+**v0.3.0** — See [CHANGELOG.md](CHANGELOG.md) for release history. Sample 2D drawing → STL: [docs/cad/](docs/cad/).
 
 > **GitHub social preview:** Use `docs/images/cheerful-banner.png` in your repo **Settings → General → Social preview** so link previews show the banner.
 

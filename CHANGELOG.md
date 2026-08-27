@@ -7,6 +7,7 @@ All notable changes to Cheerful are documented here.
 ### Added
 
 - **3D Structure Lab** — Voxel builder in the Pad/web app (`/structure`). Orbit the camera, place and erase blocks, load presets (Cheerful stack, buddy, cottage, keep, spiral), undo/redo, and export JSON. Opens from the home **3D Lab** control without a server login.
+- **2D image → 3D STL** — Import a PNG/JPG or use the 2D drawing / heightmap / CAD-bracket presets, then **Export STL** for a printable mesh.
 
 ## [0.2.0] — 2025-02-28
 

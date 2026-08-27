@@ -72,7 +72,7 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 |--------|------|
 | **cheerful-server** | Auth, sessions, messages, Socket.IO relay (PostgreSQL) |
 | **cheerful-cli** | Gateway: connects to server and Cursor Agent on your machine |
-| **cheerful-app** | Mobile/tablet client (Expo, React Native) |
+| **cheerful-app** | Mobile/tablet client (Expo, React Native), including the **3D Structure Lab** |
 | **cheerful-agent** | Helper for Cursor Cloud API (optional) |
 | **cheerful-wire** | Shared types and schemas |
 
@@ -82,6 +82,7 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 - **Cursor-native** — Slash commands, plan, debug, and conversation in one place.
 - **Local execution** — Your code stays on your machine; the server only relays.
 - **Open** — Self-host the server and audit the code.
+- **3D Structure Lab** — Build voxel structures on the Pad/web client (orbit, presets, export) without streaming a desktop.
 
 See **[For humans](docs/FOR_USERS.md)** for a comparison with RealVNC and more details.
 

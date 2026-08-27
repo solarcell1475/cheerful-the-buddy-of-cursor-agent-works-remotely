@@ -1,6 +1,6 @@
 {
   "name": "cheerful-app",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Mobile and Web client for Cheerful - Cursor Cloud Agent control",
   "license": "MIT",
   "main": "index.ts",
@@ -30,7 +30,8 @@
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "zod": "^3.23.0",
-    "@cheerful/wire": "^0.1.0"
+    "@cheerful/wire": "^0.1.0",
+    "three": "^0.167.1"
   },
   "devDependencies": {
     "@types/react": "~18.3.12",

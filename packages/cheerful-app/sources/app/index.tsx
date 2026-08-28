@@ -7,7 +7,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useSessions } from '../hooks/useSession';
 import { useLayout } from '../hooks/useLayout';
 import { SessionCard } from '../components/SessionCard';
@@ -23,9 +23,20 @@ export default function HomeScreen() {
     isAuthenticated().then(setAuthed);
   }, []);
 
+  const structureButton = (
+    <TouchableOpacity
+      onPress={() => router.push('/structure')}
+      accessibilityLabel="Open 3D Structure Lab"
+      style={styles.headerLink}
+    >
+      <Text style={styles.headerLinkText}>3D Lab</Text>
+    </TouchableOpacity>
+  );
+
   if (authed === false) {
     return (
       <View style={styles.center}>
+        <Stack.Screen options={{ headerRight: () => structureButton }} />
         <Text style={[styles.title, { fontSize: layout.fontSize.title }]}>
           Welcome to Cheerful
         </Text>
@@ -38,12 +49,19 @@ export default function HomeScreen() {
         >
           <Text style={[styles.loginText, { fontSize: layout.fontSize.body }]}>Login</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.labButton}
+          onPress={() => router.push('/structure')}
+        >
+          <Text style={styles.labButtonText}>Open 3D Structure Lab</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ headerRight: () => structureButton }} />
       <FlatList
         data={sessions}
         keyExtractor={(item) => item.id}
@@ -128,6 +146,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  labButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  labButtonText: {
+    color: '#93C5FD',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  headerLink: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  headerLinkText: {
+    color: '#93C5FD',
+    fontSize: 15,
+    fontWeight: '700',
   },
   listContent: {
     paddingVertical: 8,

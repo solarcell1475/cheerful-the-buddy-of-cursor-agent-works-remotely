@@ -9,7 +9,7 @@
 ```
                     ┌─────────────────────────────────────────────────────────┐
                     │                  Xiaomi Pad (mini app)                   │
-                    │  登录 | 会话列表 | 会话详情(Chat/Agent/Plan/Debug) | 发消息  │
+                    │  登录 | 会话列表 | 3D Structure Lab | 会话详情 | 发消息     │
                     └───────────────────────────┬─────────────────────────────┘
                                                 │ HTTPS + Socket.IO (token)
                                                 │
@@ -149,6 +149,7 @@
 |------|------|
 | `/` (index) | 首页。若未登录显示欢迎 + 登录按钮；已登录则 `GET /api/sessions` 展示会话列表（SessionCard），点进 `/session/:id`。 |
 | `/auth` | 登录页。用户名 + 密码，调用 `POST /api/auth/login`，存 token/userId 后返回首页。 |
+| `/structure` | 3D Structure Lab。体素搭建、2D 图转 3D、导出 STL；无需登录。 |
 | `/session/[id]` | 会话详情。拉取会话信息与历史消息，Socket `join-session`，订阅 `session-message` / `plan-update` / `debug-output` / `agent-list` / `agent-state-updated` 等，展示 Agent 区、Plan 区、可折叠 Debug 区、消息列表、输入框；发送走 `sendUserMessage(id, text)`。 |
 
 ### 4.3 已实现功能摘要
@@ -161,6 +162,7 @@
   - 思考中状态（isThinking）。  
   - 底部输入框发送普通消息；**尚未**在输入框内做斜杠命令面板（规划中有）。
 - **实时同步**：依赖 Socket 的 session-message、plan-update、debug-output、agent-list、metadata/state 更新，Pad 与 CLI 通过 Server 保持一致。
+- **3D Structure Lab**：`/structure` 体素搭建，可从首页「3D Lab」进入；支持 2D 图挤出/高度场、CAD 角码重建、导出 STL。
 
 ### 4.4 规划中的 Pad 功能（见计划文档）
 
@@ -196,7 +198,7 @@
 | Gateway 子命令 (status/stop/install) | - | ❌ 规划中 | - |
 | RAG 记忆 (Memory 表 + API) | ❌ 规划中 | - | ❌ 规划中 |
 | 评估（防注入/垃圾/毒性） | ❌ 规划中 | - | - |
-| Pad 标签页 (Chat / Terminal) | - | 可选 PTY 代理 | ❌ 规划中 |
+| Pad 3D Structure Lab | - | - | ✅ 体素搭建 |
 | Pad SSH/终端连本机 | - | 可选 | ❌ 规划中 |
 
 ---

@@ -32,6 +32,10 @@ export default function RootLayout() {
           name="auth"
           options={{ title: 'Login', presentation: 'modal' }}
         />
+        <Stack.Screen
+          name="structure"
+          options={{ title: '3D Structure Lab' }}
+        />
       </Stack>
     </>
   );

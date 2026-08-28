@@ -72,7 +72,7 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 |--------|------|
 | **cheerful-server** | Auth, sessions, messages, Socket.IO relay (PostgreSQL) |
 | **cheerful-cli** | Gateway: connects to server and Cursor Agent on your machine |
-| **cheerful-app** | Mobile/tablet client (Expo, React Native) |
+| **cheerful-app** | Mobile/tablet client (Expo, React Native), including the **3D Structure Lab** |
 | **cheerful-agent** | Helper for Cursor Cloud API (optional) |
 | **cheerful-wire** | Shared types and schemas |
 
@@ -82,12 +82,15 @@ cd packages/cheerful-cli && yarn && ./bin/cheerful.mjs auth login
 - **Cursor-native** — Slash commands, plan, debug, and conversation in one place.
 - **Local execution** — Your code stays on your machine; the server only relays.
 - **Open** — Self-host the server and audit the code.
+- **3D Structure Lab** — Build voxel structures on the Pad/web client (orbit, presets, 2D→3D, STL export) without streaming a desktop.
+- **Microsoft 2D→3D** — `scripts/install_microsoft_3d.sh` then `python3 scripts/microsoft_image_to_3d.py photo.jpg -o out.stl` (MoGe on CPU; TRELLIS.2 if you have a 24GB NVIDIA GPU).
+- **Review both ways** — `python3 scripts/cad_review.py file.stl -o review/` parses the mesh and saves 8 camera views. The 3D lab **Review shots** button does the same from the GUI.
 
 See **[For humans](docs/FOR_USERS.md)** for a comparison with RealVNC and more details.
 
 ## Version
 
-**v0.2.0** — See [CHANGELOG.md](CHANGELOG.md) for release history.
+**v0.3.0** — See [CHANGELOG.md](CHANGELOG.md) for release history. Sample 2D drawing → STL: [docs/cad/](docs/cad/).
 
 > **GitHub social preview:** Use `docs/images/cheerful-banner.png` in your repo **Settings → General → Social preview** so link previews show the banner.
 

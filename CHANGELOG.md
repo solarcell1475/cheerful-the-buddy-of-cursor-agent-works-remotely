@@ -2,6 +2,15 @@
 
 All notable changes to Cheerful are documented here.
 
+## [0.3.0] — 2026-08-27
+
+### Added
+
+- **3D Structure Lab** — Voxel builder in the Pad/web app (`/structure`). Orbit the camera, place and erase blocks, load presets (Cheerful stack, buddy, cottage, keep, spiral), undo/redo, and export JSON. Opens from the home **3D Lab** control without a server login.
+- **2D image → 3D STL** — Import a PNG/JPG or use the 2D drawing / heightmap / CAD-bracket presets, then **Export STL** for a printable mesh.
+- **Microsoft image-to-3D** — Optional fusion of Microsoft MoGe (photo → mesh → STL, CPU OK) and TRELLIS.2 (GPU ≥24GB). Install with `scripts/install_microsoft_3d.sh`, convert with `scripts/microsoft_image_to_3d.py`.
+- **Dual-path CAD review** — Parse DXF/STL for dimensions, then orbit-capture many PNG views (`scripts/cad_review.py`, Structure Lab **Review shots**). Same loop an LLM would run through MCP.
+
 ## [0.2.0] — 2025-02-28
 
 ### Added

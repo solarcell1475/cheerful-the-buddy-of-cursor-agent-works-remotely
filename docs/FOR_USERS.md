@@ -51,6 +51,7 @@ You can also use **both**: Cheerful for Cursor Agent from the Pad, and RealVNC w
 - **One place to look** — Session list, current agent, plan, and debug on the Pad instead of hunting on a tiny desktop stream.
 - **Optional terminal** — (Planned) A terminal tab on the Pad that connects to your computer (e.g. via SSH), so you can run quick commands or check paths without mirroring the whole screen.
 - **Open and auditable** — You can host your own server and inspect the code.
+- **3D Structure Lab** — On the Pad/web client you can orbit, place voxels, and load preset structures (Cheerful stack, cottage, keep, and more) without a desktop stream.
 
 ---
 
